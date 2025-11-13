@@ -47,6 +47,7 @@ meteo = get_weather(ville)
 
 if meteo:
     st.metric(
+        label="Température",
         value=f"{meteo['temp']}°C"
     )
 else:
