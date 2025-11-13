@@ -7,20 +7,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# Créer la sidebar (menu latéral)
-with st.sidebar:
-    st.header("Applications")
-    st.markdown("---")
-    
-    # Catégorie Ressources Humaines
-    st.subheader("Ressources Humaines")
-    
-    if st.button("🤒 Bordereaux d'arrêts maladie", use_container_width=True):
-        st.switch_page("app-rh-borderaux-arrets-maladies.py")
-    
-    st.markdown("---")
-
-
 # Contenu principal
-st.markdown("### Boîte à outils d'Executive Relocations")
+st.markdown("### Bienvenue sur la boîte à outils d'Executive Relocations")
+
+# Section informative
 st.info("💡 **Sélectionnez une application dans le menu de gauche.**")
+
+# Ajouter une section avec les catégories d'applications
+st.markdown("### 📋 Applications")
+
+st.markdown("#### Ressources Humaines")
+st.markdown("- 🤒 **Extraction des bordereaux d'arrêts maladie** : Extrait automatiquement les informations des bordereaux d'arrêts maladie au format PDF")
