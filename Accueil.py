@@ -47,11 +47,7 @@ meteo = get_weather(ville)
 
 if meteo:
     st.metric(
-        label=f"Température à {ville}",
         value=f"{meteo['temp']}°C"
     )
-    st.write(f"**Conditions :** {meteo['description']}")
-    st.write(f"**Humidité :** {meteo['humidity']}%")
-    st.write(f"**Vent :** {meteo['wind']} km/h")
 else:
     st.info("⏳ Chargement de la météo...")
