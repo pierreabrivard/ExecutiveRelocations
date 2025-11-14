@@ -30,7 +30,7 @@ def get_weather(city="Gennevilliers"):
     return None
 
 # Titre
-st.markdown("### Bienvenue sur la boîte à outils d'Executive Relocations")
+st.markdown("### Boîte à outils d'Executive Relocations")
 
 # Information
 st.info("⇽ **Sélectionnez une application dans le menu de gauche.**")
