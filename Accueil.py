@@ -1,19 +1,18 @@
 ﻿import streamlit as st
 import requests
 
-# Configuration de la page
+# Config
 st.set_page_config(
     page_title="Boîte à outils - Executive Relocations",
     page_icon="🧰",
     layout="wide"
 )
 
-# Fonction pour récupérer la météo
-def get_weather(city="Paris"):
+# Config Météo
+def get_weather(city="Gennevilliers"):
     """Récupère les données météo pour une ville donnée"""
     try:
-        # API OpenWeatherMap (gratuite)
-        # Note : Pour une utilisation en production, il faudrait une clé API
+        # API OpenWeatherMap
         url = f"https://wttr.in/{city}?format=j1"
         response = requests.get(url, timeout=5)
         
@@ -30,26 +29,17 @@ def get_weather(city="Paris"):
         return None
     return None
 
-# Contenu principal
-st.markdown("### Bienvenue sur la boîte à outils Executive Relocations")
+# Titre
+st.markdown("### Bienvenue sur la boîte à outils d'Executive Relocations")
 
-# Section informative
-st.info("💡 **Sélectionnez une application dans le menu de gauche.**")
-
-st.markdown("---")
-
-st.markdown("### Modifications effectuées")
-st.markdown("• Commit 14112025-1416 • Modification du pattern pour prendre en compte les montants avec espace (pour les milliers)")
-st.markdown("• Commit 14112025-1416 • Ajout d'un second parttern pour la ligne des Totaux (nouvelle ligne)")
-st.markdown("• Commit 14112025-1416 • Mise en forme des colonnes de date au format date dans le fichier excel")
-st.markdown("• Commit 14112025-1416 • Mise en forme des colonnes de montants au format numériques avec 2 décimales dans le fichier excel")
-st.markdown("• Commit 14112025-1416 • Mise en forme des entêtes de colonnes avec filtres dans le fichier excel")
+# Information
+st.info("⇽ **Sélectionnez une application dans le menu de gauche.**")
 
 st.markdown("---")
 
 st.markdown("### 🌤️ Météo à Gennevilliers")
 
-# Sélection de la ville
+# Ville
 ville = "Gennevilliers"
 
 meteo = get_weather(ville)
@@ -61,3 +51,12 @@ if meteo:
     )
 else:
     st.info("⏳ Chargement de la météo...")
+
+st.markdown("---")
+
+st.markdown("### Dernières modifications")
+st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Modification du pattern pour prendre en compte les montants avec espace (pour les milliers)")
+st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Ajout d'un second parttern pour la ligne des Totaux (nouvelle ligne)")
+st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Mise en forme des colonnes de date au format date dans le fichier excel")
+st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Mise en forme des colonnes de montants au format numériques avec 2 décimales dans le fichier excel")
+st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Mise en forme des entêtes de colonnes avec filtres dans le fichier excel")

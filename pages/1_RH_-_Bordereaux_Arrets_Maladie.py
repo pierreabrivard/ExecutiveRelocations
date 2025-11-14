@@ -6,7 +6,7 @@ import pdfplumber
 import pandas as pd
 import re
 
-# Afficher un loader au démarrage
+# Loader au démarrage
 with st.spinner("Chargement de l'application..."):
     time.sleep(0.5)
 
@@ -87,7 +87,7 @@ def extraire_info_pdf(pdf_bytes):
         return None
 
 # Titre
-st.title("Bonjour Elise :)")
+st.title("Extraction des bordereaux d'arrêts maladies")
 
 # Texte explicatif
 st.write("Télécharge le dossier .zip avec l'ensemble des bordereaux d'arrêts maladies")
@@ -109,7 +109,7 @@ if uploaded_file is not None:
         time.sleep(1)  # Simulation du temps d'extraction
     
     # Afficher la liste des fichiers avec icônes
-    st.write("**Fichiers trouvés dans le dossier :**")
+    st.write("**Fichiers .pdf trouvés dans le dossier :**")
     pdf_files = []
     for file_name in file_names:
         if not file_name.endswith('/'):  # Ignorer les dossiers
