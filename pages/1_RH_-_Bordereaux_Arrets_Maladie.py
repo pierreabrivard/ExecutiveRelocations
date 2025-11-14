@@ -11,7 +11,6 @@ with st.spinner("Chargement de l'application..."):
     time.sleep(0.5)
 
 def extraire_info_pdf(pdf_bytes):
-    """Extrait les informations d'un PDF"""
     try:
         with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
             # Lire la première page
@@ -36,33 +35,51 @@ def extraire_info_pdf(pdf_bytes):
             if match:
                 nom_beneficiaire = match.group(1).strip()
             
-            # Extraire Montant net (après "Total : ")
-            montant_net = ''
-            match = re.search(r'Total\s*:\s*([0-9,]+(?:\.\d{2})?)\s*€?', text)
-            if match:
-                montant_net = match.group(1)
-            
-            # Trouver toutes les lignes avec dates, nature, quantité et montants
-            # Pattern pour trouver les lignes du tableau avec quantité différente de 0
-            # Format: dd/mm/yyyy au dd/mm/yyyy Nature Quantité PrixUnitaire MontantRemboursé
-            pattern = r'(\d{2}/\d{2}/\d{4})\s+au\s+(\d{2}/\d{2}/\d{4})\s+([^\d]+?)\s+(\d+)\s+([0-9,]+(?:\.\d{2})?)\s*€?\s+([0-9,]+(?:\.\d{2})?)\s*€?'
-            
             lignes = []
-            for match in re.finditer(pattern, text):
-                quantite = int(match.group(4))
-                # Ne garder que les lignes avec quantité > 0
-                if quantite > 0:
-                    lignes.append({
-                        'Date du paiement': date_paiement,
-                        'Matricule': matricule,
-                        'Nom du bénéficiaire': nom_beneficiaire,
-                        'Date du': match.group(1),
-                        'Date de fin': match.group(2),
-                        'Nature de la prestation': match.group(3).strip(),
-                        'Quantité': str(quantite),
-                        'Montant brut': match.group(6),  # Dernier montant = Montant remboursé
-                        'Montant net': montant_net
-                    })
+            
+            # Pattern 1 : Lignes du tableau avec dates
+            # Gère les espaces dans les montants (ex: 2 251,00)
+            # Format: dd/mm/yyyy au dd/mm/yyyy Nature Quantité PrixUnitaire MontantRemboursé
+            pattern1 = r'(\d{2}/\d{2}/\d{4})\s+au\s+(\d{2}/\d{2}/\d{4})\s+([A-Z\.\s]+?)\s+(\d+)\s+(-?[\d\s]+[,\.]\d{2})\s*€\s+(-?[\d\s]+[,\.]\d{2})\s*€'
+            
+            for match in re.finditer(pattern1, text):
+                # Nettoyer les montants en enlevant les espaces
+                prix_unitaire = match.group(5).replace(' ', '')
+                montant_rembourse = match.group(6).replace(' ', '')
+                
+                lignes.append({
+                    'Type': 'Montant brut',
+                    'Date du paiement': date_paiement,
+                    'Matricule': matricule,
+                    'Nom du bénéficiaire': nom_beneficiaire,
+                    'Date du': match.group(1),
+                    'Date de fin': match.group(2),
+                    'Nature de la prestation': match.group(3).strip(),
+                    'Quantité': match.group(4),
+                    'Montant brut': montant_rembourse,
+                    'Montant net': 0
+                })
+            
+            # Pattern 2 : Lignes "Total :"
+            # Format: Total : 1 234,56 € ou Total : -1 234,56 €
+            pattern2 = r'Total\s*:\s*(-?[\d\s]+[,\.]\d{2})\s*€'
+            
+            for match in re.finditer(pattern2, text):
+                # Nettoyer le montant en enlevant les espaces
+                montant_total = match.group(1).replace(' ', '')
+                
+                lignes.append({
+                    'Type': 'Montant net',
+                    'Date du paiement': date_paiement,
+                    'Matricule': matricule,
+                    'Nom du bénéficiaire': nom_beneficiaire,
+                    'Date du': '',
+                    'Date de fin': '',
+                    'Nature de la prestation': 'Total',
+                    'Quantité': 0,
+                    'Montant brut': 0,
+                    'Montant net': montant_total
+                })
             
             return lignes if lignes else None
     except Exception as e:
@@ -124,17 +141,49 @@ if uploaded_file is not None:
             st.write("**Informations extraites des bordereaux :**")
             df = pd.DataFrame(donnees)
             # Réorganiser les colonnes
-            colonnes = ['Nom du fichier', 'Date du paiement', 'Matricule', 'Nom du bénéficiaire', 
+            colonnes = ['Nom du fichier', 'Type', 'Date du paiement', 'Matricule', 'Nom du bénéficiaire', 
                        'Date du', 'Date de fin', 'Nature de la prestation', 'Quantité', 
                        'Montant brut', 'Montant net']
             df = df[colonnes]
-            st.dataframe(df, use_container_width=True)
+            
+            # Convertir toutes les colonnes qui doivent être numériques
+            df['Quantité'] = df['Quantité'].astype(str).astype(int)
+            df['Montant brut'] = df['Montant brut'].astype(str)
+            df['Montant net'] = df['Montant net'].astype(str)
+            
+            # Appliquer un style : fond bleu clair pour les lignes "Montant net"
+            def colorer_lignes(row):
+                if row['Type'] == 'Montant net':
+                    return ['background-color: lightblue'] * len(row)
+                return [''] * len(row)
+            
+            df_styled = df.style.apply(colorer_lignes, axis=1)
+            st.dataframe(df_styled, width='stretch', height=400)
             
             # Bouton de téléchargement Excel
-            # Créer le fichier Excel en mémoire
+            # Créer le fichier Excel en mémoire avec formatage
             output = BytesIO()
             with pd.ExcelWriter(output, engine='openpyxl') as writer:
                 df.to_excel(writer, index=False, sheet_name='Bordereaux')
+                
+                # Accéder à la feuille de calcul pour ajouter le formatage
+                workbook = writer.book
+                worksheet = writer.sheets['Bordereaux']
+                
+                # Importer les styles openpyxl
+                from openpyxl.styles import PatternFill
+                
+                # Définir le fond bleu clair
+                blue_fill = PatternFill(start_color='ADD8E6', end_color='ADD8E6', fill_type='solid')
+                
+                # Parcourir les lignes du DataFrame et appliquer le style
+                for idx, row in df.iterrows():
+                    if row['Type'] == 'Montant net':
+                        # idx + 2 car : +1 pour l'en-tête, +1 pour l'index Excel qui commence à 1
+                        excel_row = idx + 2
+                        for col in range(1, len(df.columns) + 1):
+                            worksheet.cell(row=excel_row, column=col).fill = blue_fill
+            
             output.seek(0)
             
             # Bouton de téléchargement
