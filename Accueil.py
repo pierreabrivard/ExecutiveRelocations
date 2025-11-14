@@ -39,8 +39,11 @@ st.info("💡 **Sélectionnez une application dans le menu de gauche.**")
 st.markdown("---")
 
 st.markdown("### Modifications effectuées")
-st.markdown("• Modification du pattern pour prendre en compte les montants avec espace (pour les milliers)")
-st.markdown("• Ajout d'un second parttern pour la ligne des Totaux (nouvelle ligne)")
+st.markdown("• Commit 14112025-1416 • Modification du pattern pour prendre en compte les montants avec espace (pour les milliers)")
+st.markdown("• Commit 14112025-1416 • Ajout d'un second parttern pour la ligne des Totaux (nouvelle ligne)")
+st.markdown("• Commit 14112025-1416 • Mise en forme des colonnes de date au format date dans le fichier excel")
+st.markdown("• Commit 14112025-1416 • Mise en forme des colonnes de montants au format numériques avec 2 décimales dans le fichier excel")
+st.markdown("• Commit 14112025-1416 • Mise en forme des entêtes de colonnes avec filtres dans le fichier excel")
 
 st.markdown("---")
 

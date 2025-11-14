@@ -172,17 +172,62 @@ if uploaded_file is not None:
                 
                 # Importer les styles openpyxl
                 from openpyxl.styles import PatternFill
+                from datetime import datetime
+                
+                # Activer les filtres sur la première ligne (entêtes)
+                worksheet.auto_filter.ref = worksheet.dimensions
                 
                 # Définir le fond bleu clair
                 blue_fill = PatternFill(start_color='ADD8E6', end_color='ADD8E6', fill_type='solid')
                 
+                # Identifier les colonnes de dates et de montants
+                date_columns = ['Date du paiement', 'Date du', 'Date de fin']
+                date_col_indices = [df.columns.get_loc(col) + 1 for col in date_columns if col in df.columns]
+                
+                montant_columns = ['Montant brut', 'Montant net']
+                montant_col_indices = [df.columns.get_loc(col) + 1 for col in montant_columns if col in df.columns]
+                
                 # Parcourir les lignes du DataFrame et appliquer le style
                 for idx, row in df.iterrows():
+                    excel_row = idx + 2  # +1 pour l'en-tête, +1 pour l'index Excel qui commence à 1
+                    
+                    # Appliquer le fond bleu pour les lignes "Montant net"
                     if row['Type'] == 'Montant net':
-                        # idx + 2 car : +1 pour l'en-tête, +1 pour l'index Excel qui commence à 1
-                        excel_row = idx + 2
                         for col in range(1, len(df.columns) + 1):
                             worksheet.cell(row=excel_row, column=col).fill = blue_fill
+                    
+                    # Formater les cellules de dates
+                    for col_idx in date_col_indices:
+                        cell = worksheet.cell(row=excel_row, column=col_idx)
+                        cell_value = cell.value
+                        
+                        # Convertir la chaîne de date en objet datetime si ce n'est pas vide
+                        if cell_value and isinstance(cell_value, str) and cell_value.strip():
+                            try:
+                                # Format attendu: jj/mm/aaaa
+                                date_obj = datetime.strptime(cell_value, '%d/%m/%Y')
+                                cell.value = date_obj
+                                cell.number_format = 'DD/MM/YYYY'
+                            except:
+                                pass  # Garder la valeur originale si la conversion échoue
+                    
+                    # Formater les cellules de montants en numérique avec 2 décimales
+                    for col_idx in montant_col_indices:
+                        cell = worksheet.cell(row=excel_row, column=col_idx)
+                        cell_value = cell.value
+                        
+                        # Convertir la chaîne de montant en nombre si ce n'est pas vide ou 0
+                        if cell_value and isinstance(cell_value, str) and cell_value.strip() and cell_value != '0':
+                            try:
+                                # Remplacer la virgule par un point pour la conversion
+                                montant_float = float(cell_value.replace(',', '.'))
+                                cell.value = montant_float
+                                cell.number_format = '#,##0.00'
+                            except:
+                                pass  # Garder la valeur originale si la conversion échoue
+                        elif cell_value == '0' or cell_value == 0:
+                            cell.value = 0
+                            cell.number_format = '#,##0.00'
             
             output.seek(0)
             
