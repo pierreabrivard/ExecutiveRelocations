@@ -30,7 +30,7 @@ def get_weather(city="Gennevilliers"):
     return None
 
 # Titre
-st.markdown("### Bienvenue sur la boîte à outils d'Executive Relocations")
+st.markdown("### Boîte à outils d'Executive Relocations")
 
 # Information
 st.info("⇽ **Sélectionnez une application dans le menu de gauche.**")
@@ -60,3 +60,4 @@ st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Ajou
 st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Mise en forme des colonnes de date au format date dans le fichier excel")
 st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Mise en forme des colonnes de montants au format numériques avec 2 décimales dans le fichier excel")
 st.markdown("• Commit 14112025-1416 • RH - Bordereaux Arrets Maladie -- Mise en forme des entêtes de colonnes avec filtres dans le fichier excel")
+
